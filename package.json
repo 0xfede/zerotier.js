@@ -18,6 +18,8 @@
     "dist/client.js",
     "dist/controller.d.*",
     "dist/controller.js",
+    "dist/http.d.*",
+    "dist/http.js",
     "dist/index.d.*",
     "dist/index.js",
     "dist/types.d.*",
