@@ -1,6 +1,4 @@
 import { readFile } from "fs/promises";
-import { OutgoingHttpHeaders } from 'http';
-import { NeedleHttpVerbs } from "needle";
 import { BrowserHTTPClient, HTTPClient, NodeHTTPClient } from "./http.js";
 
 export interface ZeroTierAPIOptions {
@@ -41,8 +39,8 @@ export class ZeroTierAPI {
     }
   }
 
-  protected async getRequestHeaders(method: NeedleHttpVerbs, path: string, body?: any): Promise<OutgoingHttpHeaders> {
-    const headers: OutgoingHttpHeaders = {};
+  protected async getRequestHeaders(method: string, path: string, body?: any): Promise<any> {
+    const headers: any = {};
     headers["X-ZT1-Auth"] = await this.secret;
     if (body) {
       headers["Content-Type"] = "application/json";
@@ -50,7 +48,7 @@ export class ZeroTierAPI {
     return headers;
   }
 
-  async invoke<T>(method: NeedleHttpVerbs, path: string, body?: any): Promise<T> {
+  async invoke<T>(method: string, path: string, body?: any): Promise<T> {
     return this.opts.httpClient!.invoke<T>(method, `${this.opts.baseUrl!}${path}`, await this.getRequestHeaders(method, path, body), body);
   }
 }
