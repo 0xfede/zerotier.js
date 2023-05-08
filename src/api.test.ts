@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { unlink, writeFile } from 'fs/promises';
+import fetch from "node-fetch";
 import os from 'os';
 import { ZeroTierAPI } from './api.js';
 
@@ -65,6 +66,11 @@ describe('ZeroTierAPI', () => {
       }
     });
 
+    afterEach(async () => {
+      global.window = undefined as any;
+      global.fetch = undefined as any;
+    });
+  
     it('should fail to invoke a method without valid credentials file', async () => {
       const api = new ZeroTierAPI({ credentialsPath: 'test/invalid.secret' });
       try {
@@ -75,8 +81,28 @@ describe('ZeroTierAPI', () => {
       }
     });
 
-    it('should fail to invoke a method without valid credentials', async () => {
+    it('should fail to invoke a method without valid credentials (node version)', async () => {
       // generate a random secret as a 24 character hex string
+      const secret = [...Array(24)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+      // store the secret in a temporary file in the os temp directory
+      const credentialsPath = `${os.tmpdir()}/authtoken.secret`;
+      await writeFile(credentialsPath, secret, 'utf8');
+      const api = new ZeroTierAPI({ credentialsPath });
+      try {
+        await api.invoke('get', '/status');
+        throw new Error('Expected an error');
+      } catch (err: any) {
+        expect(err.message).to.match(/HTTP 401: Unauthorized/);
+      } finally {
+        // unlink the file
+        await unlink(credentialsPath);
+      }
+    });
+
+    it('should fail to invoke a method without valid credentials (browser version)', async () => {
+      global.window = {} as any;
+      global.fetch = fetch as any;
+        // generate a random secret as a 24 character hex string
       const secret = [...Array(24)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
       // store the secret in a temporary file in the os temp directory
       const credentialsPath = `${os.tmpdir()}/authtoken.secret`;

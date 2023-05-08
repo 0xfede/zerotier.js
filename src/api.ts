@@ -1,10 +1,12 @@
 import { readFile } from "fs/promises";
 import { OutgoingHttpHeaders } from 'http';
-import needle, { NeedleHttpVerbs, NeedleOptions, NeedleResponse } from "needle";
+import { NeedleHttpVerbs } from "needle";
+import { BrowserHTTPClient, HTTPClient, NodeHTTPClient } from "./http.js";
 
 export interface ZeroTierAPIOptions {
   baseUrl?: string;
   credentialsPath?: string;
+  httpClient?: HTTPClient;
 }
 
 export class ZeroTierAPI {
@@ -30,6 +32,13 @@ export class ZeroTierAPI {
     } else {
       this.secret = readFile(opts.credentialsPath, "utf8");
     }
+    if (!opts.httpClient) {
+      if (typeof window !== "undefined") {
+        opts.httpClient = new BrowserHTTPClient();
+      } else {
+        opts.httpClient = new NodeHTTPClient();
+      } 
+    }
   }
 
   protected async getRequestHeaders(method: NeedleHttpVerbs, path: string, body?: any): Promise<OutgoingHttpHeaders> {
@@ -42,20 +51,6 @@ export class ZeroTierAPI {
   }
 
   async invoke<T>(method: NeedleHttpVerbs, path: string, body?: any): Promise<T> {
-    const opts: NeedleOptions = {
-      headers: await this.getRequestHeaders(method, path, body),
-      json: true
-    }
-    let response: NeedleResponse;
-    if (body) {
-      response = await needle(method, `${this.opts.baseUrl!}${path}`, body, opts);
-    } else {
-      response = await needle(method, `${this.opts.baseUrl!}${path}`, opts);
-    }
-    if (response.statusCode !== 200) {
-      throw new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`);
-    } else {
-      return response.body as T;
-    }
+    return this.opts.httpClient!.invoke<T>(method, `${this.opts.baseUrl!}${path}`, await this.getRequestHeaders(method, path, body), body);
   }
 }

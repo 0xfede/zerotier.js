@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import fetch from "node-fetch";
 import { ZeroTierClient, ZeroTierController } from "./index.js";
 
 describe("ZeroTierController", () => {
@@ -26,6 +27,11 @@ describe("ZeroTierController", () => {
     }
   });
 
+  afterEach(async () => {
+    global.window = undefined as any;
+    global.fetch = undefined as any;
+  });
+
   it("should create a network in the controller", async () => {
     const controller = new ZeroTierController();
     const controllerNetwork = await controller.createNetwork(testNetworkId);
@@ -42,12 +48,22 @@ describe("ZeroTierController", () => {
     expect(controllerNetwork.id).to.be.equal(testNetworkId);
   });
 
-  it("should update a network in the controller", async () => {
+  it("should update a network in the controller (node version)", async () => {
     const controller = new ZeroTierController();
-    const controllerNetwork = await controller.updateNetwork(testNetworkId, { name: "test_network" });
+    const controllerNetwork = await controller.updateNetwork(testNetworkId, { name: "test_network_node" });
     expect(controllerNetwork).to.be.an("object");
     expect(controllerNetwork.id).to.be.equal(testNetworkId);
-    expect(controllerNetwork.name).to.be.equal("test_network");
+    expect(controllerNetwork.name).to.be.equal("test_network_node");
+  });
+
+  it("should update a network in the controller (browser version)", async () => {
+    global.window = {} as any;
+    global.fetch = fetch as any;
+    const controller = new ZeroTierController();
+    const controllerNetwork = await controller.updateNetwork(testNetworkId, { name: "test_network_browser" });
+    expect(controllerNetwork).to.be.an("object");
+    expect(controllerNetwork.id).to.be.equal(testNetworkId);
+    expect(controllerNetwork.name).to.be.equal("test_network_browser");
   });
 
   it("should delete a network from the controller", async () => {
