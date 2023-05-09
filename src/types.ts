@@ -157,7 +157,7 @@ export namespace ZeroTier {
         sportStart: number;
         target: string;
       }[];
-      tags: string[];
+      tags: number[][];
       capabilities: {}[]; // TODO
       remoteTraceTarget: string;
       remoteTraceLevel: number;
@@ -178,6 +178,8 @@ export namespace ZeroTier {
       vMinor: number;
       vRev: number;
       vProto: number;
+      tags?: number[][];
+      capabilities?: {}[]; // TODO
     }
   }
 
