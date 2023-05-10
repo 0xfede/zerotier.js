@@ -118,5 +118,13 @@ describe('ZeroTierAPI', () => {
         await unlink(credentialsPath);
       }
     });
+
+    it('should accept the secret in the options', async () => {
+      const api = new ZeroTierAPI({ secret });
+      const status = await api.invoke('get', '/status');
+      expect(status).to.have.property('address');
+    });
+
   });
+  
 });

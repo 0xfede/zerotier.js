@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import fetch from "node-fetch";
-import { ZeroTierClient, ZeroTierController } from "./index.js";
+import { ZeroTierAPI, ZeroTierClient, ZeroTierController } from "./index.js";
 
 describe("ZeroTierController", () => {
 
@@ -32,6 +32,13 @@ describe("ZeroTierController", () => {
     global.fetch = undefined as any;
   });
 
+  it('should accept an api instance in the constructor', async () => {
+    const api = new ZeroTierAPI();
+    const client = new ZeroTierController(api);
+    expect(client).to.be.an("object");
+    expect((client as any).api).to.equal(api);
+  });
+  
   it("should create a network in the controller", async () => {
     const controller = new ZeroTierController();
     const controllerNetwork = await controller.createNetwork(testNetworkId);

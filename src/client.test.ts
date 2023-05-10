@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { ZeroTierAPI } from "./api.js";
 import { ZeroTierClient } from "./client.js";
 import { ZeroTierController } from "./controller.js";
 
@@ -27,6 +28,13 @@ describe("ZeroTierClient", () => {
     }
   });
 
+  it('should accept an api instance in the constructor', async () => {
+    const api = new ZeroTierAPI();
+    const client = new ZeroTierClient(api);
+    expect(client).to.be.an("object");
+    expect((client as any).api).to.equal(api);
+  });
+  
   it("should return a config object", async () => {
     const client = new ZeroTierClient();
     const config = await client.getConfig();
