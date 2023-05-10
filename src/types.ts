@@ -152,7 +152,7 @@ export namespace ZeroTier {
       revision: number;
       routes: {
         target: string;
-        via: string;
+        via?: string;
       }[];
       ipAssignmentPools: {
         ipRangeStart: string;
