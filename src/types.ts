@@ -279,7 +279,7 @@ export namespace ZeroTier {
     
     export interface Capabilities {
       [name: string]: {
-        'id': string,
+        'id': number,
         'default': boolean,
         'rules': Rule[]
       }
@@ -287,7 +287,7 @@ export namespace ZeroTier {
     
     export interface Tags {
       [name: string]: {
-        'id': string,
+        'id': number,
         'default': number,
         enum: {
           [name: string]: number
