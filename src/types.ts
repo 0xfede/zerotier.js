@@ -120,18 +120,6 @@ export namespace ZeroTier {
 
   export namespace Controller {
 
-    export interface Rule { // TODO check this out
-      action: 'ACCEPT' | 'DROP';
-      comment: string;
-      disabled: boolean;
-      dportEnd: number;
-      dportStart: number;
-      protocol: 'TCP' | 'UDP' | 'ICMP';
-      sportEnd: number;
-      sportStart: number;
-      target: string;
-    }
-
     export interface Network {
       id: string;
       nwid: string;
@@ -158,7 +146,7 @@ export namespace ZeroTier {
         ipRangeStart: string;
         ipRangeEnd: string;
       }[];
-      rules: Rule[];
+      rules: Compiler.Rule[];
       tags: {
         id: number;
         default: number
@@ -166,7 +154,7 @@ export namespace ZeroTier {
       capabilities: {
         id: number;
         default: boolean;
-        rules: Rule[];
+        rules: Compiler.Rule[];
       }[]; // TODO
       remoteTraceTarget: string;
       remoteTraceLevel: number;
