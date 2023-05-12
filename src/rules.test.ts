@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { Capabilities, Rule, Tags, compileRules } from './rules.js';
+import { compileRules } from './rules.js';
+import { ZeroTier } from './types.js';
 
 describe('compileRules', () => {
   it('should compile rules', () => {
@@ -22,9 +23,9 @@ describe('compileRules', () => {
   
   accept;
   `;
-    const rules: Rule[] = [];
-    const capabilities: Capabilities = {};
-    const tags: Tags = {};
+    const rules: ZeroTier.Compiler.Rule[] = [];
+    const capabilities: ZeroTier.Compiler.Capabilities = {};
+    const tags: ZeroTier.Compiler.Tags = {};
 
     compileRules(source, rules, capabilities, tags);
     expect(rules).to.deep.equal([
