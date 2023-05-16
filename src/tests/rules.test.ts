@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { compileRules } from './rules.js';
-import { ZeroTier } from './types.js';
+import { compileRules } from '../base/rules.js';
+import { ZeroTier } from '../base/types.js';
 
 describe('compileRules', () => {
   it('should compile rules', () => {

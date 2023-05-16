@@ -2,7 +2,9 @@ import { expect } from 'chai';
 import { unlink, writeFile } from 'fs/promises';
 import fetch from "node-fetch";
 import os from 'os';
-import { ZeroTierAPI } from './api.js';
+import { ZeroTierAPI } from '../base/api.js';
+import { BrowserHTTPClient } from '../browser/http.js';
+import { NodeZeroTierAPI } from '../node/api.js';
 
 describe('ZeroTierAPI', () => {
   describe('Constructor', () => {
@@ -11,7 +13,7 @@ describe('ZeroTierAPI', () => {
       const platform = process.platform;
       try {
         Object.defineProperty(process, 'platform', { value: 'unknown' });
-        expect(() => new ZeroTierAPI()).to.throw('Unsupported platform');
+        expect(() => new NodeZeroTierAPI()).to.throw('Unsupported platform');
       } finally {
         Object.defineProperty(process, 'platform', { value: platform });
       }
@@ -21,8 +23,8 @@ describe('ZeroTierAPI', () => {
       const platform = process.platform;
       try {
         Object.defineProperty(process, 'platform', { value: 'win32' });
-        const api = new ZeroTierAPI();
-        expect((api as any).opts.credentialsPath).to.equal('C:\\ProgramData\\ZeroTier\\One\\authtoken.secret');
+        const api = new NodeZeroTierAPI();
+        expect((api as any).nodeOpts.credentialsPath).to.equal('C:\\ProgramData\\ZeroTier\\One\\authtoken.secret');
       } finally {
         Object.defineProperty(process, 'platform', { value: platform });
       }
@@ -32,8 +34,8 @@ describe('ZeroTierAPI', () => {
       const platform = process.platform;
       try {
         Object.defineProperty(process, 'platform', { value: 'linux' });
-        const api = new ZeroTierAPI();
-        expect((api as any).opts.credentialsPath).to.equal('/var/lib/zerotier-one/authtoken.secret');
+        const api = new NodeZeroTierAPI();
+        expect((api as any).nodeOpts.credentialsPath).to.equal('/var/lib/zerotier-one/authtoken.secret');
       } finally {
         Object.defineProperty(process, 'platform', { value: platform });
       }
@@ -43,8 +45,8 @@ describe('ZeroTierAPI', () => {
       const platform = process.platform;
       try {
         Object.defineProperty(process, 'platform', { value: 'darwin' });
-        const api = new ZeroTierAPI();
-        expect((api as any).opts.credentialsPath).to.equal('/Library/Application Support/ZeroTier/One/authtoken.secret');
+        const api = new NodeZeroTierAPI();
+        expect((api as any).nodeOpts.credentialsPath).to.equal('/Library/Application Support/ZeroTier/One/authtoken.secret');
       } finally {
         Object.defineProperty(process, 'platform', { value: platform });
       }
@@ -72,7 +74,7 @@ describe('ZeroTierAPI', () => {
     });
   
     it('should fail to invoke a method without valid credentials file', async () => {
-      const api = new ZeroTierAPI({ credentialsPath: 'test/invalid.secret' });
+      const api = new NodeZeroTierAPI({ credentialsPath: 'test/invalid.secret' });
       try {
         await api.invoke('get', '/status');
         throw new Error('Expected an error');
@@ -87,7 +89,7 @@ describe('ZeroTierAPI', () => {
       // store the secret in a temporary file in the os temp directory
       const credentialsPath = `${os.tmpdir()}/authtoken.secret`;
       await writeFile(credentialsPath, secret, 'utf8');
-      const api = new ZeroTierAPI({ credentialsPath });
+      const api = new NodeZeroTierAPI({ credentialsPath });
       try {
         await api.invoke('get', '/status');
         throw new Error('Expected an error');
@@ -104,23 +106,17 @@ describe('ZeroTierAPI', () => {
       global.fetch = fetch as any;
         // generate a random secret as a 24 character hex string
       const secret = [...Array(24)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-      // store the secret in a temporary file in the os temp directory
-      const credentialsPath = `${os.tmpdir()}/authtoken.secret`;
-      await writeFile(credentialsPath, secret, 'utf8');
-      const api = new ZeroTierAPI({ credentialsPath });
+      const api = new ZeroTierAPI({ secret, httpClient: new BrowserHTTPClient() });
       try {
         await api.invoke('get', '/status');
         throw new Error('Expected an error');
       } catch (err: any) {
         expect(err.message).to.match(/HTTP 401: Unauthorized/);
-      } finally {
-        // unlink the file
-        await unlink(credentialsPath);
       }
     });
 
     it('should accept the secret in the options', async () => {
-      const api = new ZeroTierAPI({ secret });
+      const api = new NodeZeroTierAPI({ secret });
       const status = await api.invoke('get', '/status');
       expect(status).to.have.property('address');
     });

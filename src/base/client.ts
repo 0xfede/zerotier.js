@@ -1,17 +1,8 @@
-import { ZeroTierAPI, ZeroTierAPIOptions } from "./api.js";
+import { ZeroTierAPI } from "./api.js";
 import { ZeroTier } from "./types.js";
 
-export class ZeroTierClient {
-  protected api: ZeroTierAPI;
-
-  constructor(opts?: ZeroTierAPIOptions);
-  constructor(api?: ZeroTierAPI);
-  constructor(optsOrAPI?: ZeroTierAPIOptions | ZeroTierAPI) {
-    if (optsOrAPI instanceof ZeroTierAPI) {
-      this.api = optsOrAPI;
-    } else {
-      this.api = new ZeroTierAPI(optsOrAPI);
-    }
+export class ZeroTierClient<API extends ZeroTierAPI> {
+  constructor(protected api: API) {
   }
 
   public getConfig(): Promise<ZeroTier.Config> {

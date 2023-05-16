@@ -1,10 +1,10 @@
-import { expect } from "chai";
-import { ZeroTierAPI } from "./api.js";
-import { ZeroTierClient } from "./client.js";
-import { ZeroTierController } from "./controller.js";
+import { expect } from 'chai';
+import fetch from 'node-fetch';
+import { ZeroTierClient as BrowserZeroTierClient } from '../browser/index.js';
+import { NodeZeroTierAPI as ZeroTierAPI } from '../node/api.js';
+import { ZeroTierClient, ZeroTierController } from '../node/index.js';
 
-describe("ZeroTierClient", () => {
-
+describe('ZeroTierClient', () => {
   let address: string;
   let testNetworkId: string;
 
@@ -13,7 +13,7 @@ describe("ZeroTierClient", () => {
     const controller = new ZeroTierController();
     const status = await client.getStatus();
     address = status.address;
-    testNetworkId = address + "fedefe";
+    testNetworkId = address + 'fedefe';
     const networks = await controller.getNetworks();
     if (networks.includes(testNetworkId)) {
       await controller.deleteNetwork(testNetworkId);
@@ -31,28 +31,27 @@ describe("ZeroTierClient", () => {
   it('should accept an api instance in the constructor', async () => {
     const api = new ZeroTierAPI();
     const client = new ZeroTierClient(api);
-    expect(client).to.be.an("object");
+    expect(client).to.be.an('object');
     expect((client as any).api).to.equal(api);
   });
-  
-  it("should return a config object", async () => {
+
+  it('should return a config object', async () => {
     const client = new ZeroTierClient();
     const config = await client.getConfig();
-    expect(config).to.be.an("object");
+    expect(config).to.be.an('object');
   });
 
-  it("should return a status object", async () => {
+  it('should return a status object', async () => {
     const client = new ZeroTierClient();
     const status = await client.getStatus();
-    expect(status).to.be.an("object");
+    expect(status).to.be.an('object');
     expect(status.address).to.be.equal(address);
   });
 
-  describe("Network", () => {
-
+  describe('Network', () => {
     before(async () => {
       const controller = new ZeroTierController();
-      await controller.createNetwork(testNetworkId, { name: "test_network" });
+      await controller.createNetwork(testNetworkId, { name: 'test_network' });
     });
 
     after(async () => {
@@ -67,7 +66,7 @@ describe("ZeroTierClient", () => {
     });
 
     //test joining and leaving a network
-    it("should join a network and be unauthorized", async () => {
+    it('should join a network and be unauthorized', async () => {
       debugger;
       const client = new ZeroTierClient();
       // check that it's not already joined
@@ -76,51 +75,51 @@ describe("ZeroTierClient", () => {
       expect(network).to.be.undefined;
 
       network = await client.joinNetwork(testNetworkId);
-      expect(network).to.be.an("object");
+      expect(network).to.be.an('object');
       expect(network.id).to.be.equal(testNetworkId);
 
-      const status = await new Promise<string>(resolve => {
+      const status = await new Promise<string>((resolve) => {
         let count = 0;
         const interval = setInterval(async () => {
           networks = await client.getNetworks();
           network = networks.find((network) => network.id === testNetworkId);
-          if (network?.status === "ACCESS_DENIED") {
+          if (network?.status === 'ACCESS_DENIED') {
             clearInterval(interval);
             resolve(network?.status);
           }
           if (count > 10) {
             clearInterval(interval);
-            resolve(network?.status || "");
+            resolve(network?.status || '');
           }
           count++;
         }, 500);
       });
-      expect(status).to.equal("ACCESS_DENIED");
+      expect(status).to.equal('ACCESS_DENIED');
 
       const controller = new ZeroTierController();
       const members = await controller.getMembers(testNetworkId);
-      expect(members[address]).to.be.a("number");
+      expect(members[address]).to.be.a('number');
       const member = await controller.getMember(testNetworkId, address);
-      expect(member).to.be.an("object");
+      expect(member).to.be.an('object');
       expect(member?.authorized).to.be.false;
     });
 
-    it("should leave a network", async () => {
+    it('should leave a network', async () => {
       const client = new ZeroTierClient();
       // check that it's already joined
       let networks = await client.getNetworks();
       let network = networks.find((network) => network.id === testNetworkId);
-      expect(network).to.be.an("object");
+      expect(network).to.be.an('object');
 
       const result = await client.leaveNetwork(testNetworkId);
-      expect(result).to.be.an("object");
+      expect(result).to.be.an('object');
       expect(result?.result).to.be.equal(true);
       networks = await client.getNetworks();
       network = networks.find((network) => network.id === testNetworkId);
       expect(network).to.be.undefined;
     });
 
-    it("should join a network and be authorized", async () => {
+    it('should join a network and be authorized', async () => {
       debugger;
 
       // authorize the member
@@ -134,17 +133,17 @@ describe("ZeroTierClient", () => {
       expect(network).to.be.undefined;
 
       network = await client.joinNetwork(testNetworkId);
-      expect(network).to.be.an("object");
+      expect(network).to.be.an('object');
       expect(network.id).to.be.equal(testNetworkId);
       networks = await client.getNetworks();
       network = networks.find((network) => network.id === testNetworkId);
-      expect(network).to.be.an("object");
-      expect(network?.status).to.oneOf(["OK", "REQUESTING_CONFIGURATION"]);
+      expect(network).to.be.an('object');
+      expect(network?.status).to.oneOf(['OK', 'REQUESTING_CONFIGURATION']);
 
       network = await client.getNetwork(testNetworkId);
-      expect(network).to.be.an("object");
+      expect(network).to.be.an('object');
       expect(network.id).to.be.equal(testNetworkId);
-      expect(network?.status).to.oneOf(["OK", "REQUESTING_CONFIGURATION"]);
+      expect(network?.status).to.oneOf(['OK', 'REQUESTING_CONFIGURATION']);
 
       let member = await controller.getMember(testNetworkId, address);
       expect(member?.authorized).to.be.true;
@@ -159,24 +158,42 @@ describe("ZeroTierClient", () => {
       expect(members[address]).to.be.undefined;
       */
     });
-
   });
 
-  describe("Peer", () => {
-
-    it("should return an array of peers", async () => {
-      const client = new ZeroTierClient();
-      const peers = await client.getPeers();
-      expect(peers).to.be.an("array");
+  describe('Peer', () => {
+    afterEach(async () => {
+      global.window = undefined as any;
+      global.fetch = undefined as any;
     });
 
-    it("should return a peer object", async () => {
+    it('should return an array of peers (node version)', async () => {
+      const client = new ZeroTierClient();
+      const peers = await client.getPeers();
+      expect(peers).to.be.an('array');
+    });
+
+    it('should return an array of peers (browser version)', async () => {
+      global.window = {} as any;
+      global.fetch = fetch as any;
+      const client = new BrowserZeroTierClient();
+      const peers = await client.getPeers();
+      expect(peers).to.be.an('array');
+    });
+
+    it('should return a peer object (node version)', async () => {
       const client = new ZeroTierClient();
       const peers = await client.getPeers();
       const peer = await client.getPeer(peers[0].address);
-      expect(peer).to.be.an("object");
+      expect(peer).to.be.an('object');
     });
 
+    it('should return a peer object (browser version)', async () => {
+      global.window = {} as any;
+      global.fetch = fetch as any;
+      const client = new BrowserZeroTierClient(new ZeroTierAPI());
+      const peers = await client.getPeers();
+      const peer = await client.getPeer(peers[0].address);
+      expect(peer).to.be.an('object');
+    });
   });
-
 });

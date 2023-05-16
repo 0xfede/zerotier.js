@@ -1,7 +1,7 @@
 {
   "name": "zerotier.js",
   "type": "module",
-  "version": "1.2.6",
+  "version": "1.3.0",
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build",
@@ -11,25 +11,17 @@
     "cover": "c8 --reporter=lcov --reporter=text npm t"
   },
   "exports": {
-    ".": "./dist/index.js",
-    "./dist/*.js": "./dist/*.js"
+    ".": "./dist/node/index.js",
+    "./node": "./dist/node/index.js",
+    "./browser": "./dist/browser/index.js",
+    "./dist/*.js": "./dist/**/*.js",
+    "./dist/*.ts": "./dist/**/*.ts"
   },
   "types": "./dist/index.d.ts",
   "files": [
-    "dist/api.d.*",
-    "dist/api.js",
-    "dist/client.d.*",
-    "dist/client.js",
-    "dist/controller.d.*",
-    "dist/controller.js",
-    "dist/http.d.*",
-    "dist/http.js",
-    "dist/index.d.*",
-    "dist/index.js",
-    "dist/rules.d.*",
-    "dist/rules.js",
-    "dist/types.d.*",
-    "dist/types.js",
+    "dist/base",
+    "dist/node",
+    "dist/browser",
     "README.md",
     "LICENSE"
   ],
