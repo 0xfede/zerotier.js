@@ -17,7 +17,7 @@
     "./dist/*.js": "./dist/**/*.js",
     "./dist/*.ts": "./dist/**/*.ts"
   },
-  "types": "./dist/index.d.ts",
+  "types": "./dist/node/index.d.ts",
   "files": [
     "dist/base",
     "dist/node",
