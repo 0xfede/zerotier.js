@@ -15,8 +15,6 @@ export class ZeroTierAPI {
     }
     if (opts.secret) {
       this.secret = Promise.resolve(opts.secret);
-    } else if (process.env.ZT_SECRET) {
-      this.secret = Promise.resolve(process.env.ZT_SECRET);
     }
   }
 
