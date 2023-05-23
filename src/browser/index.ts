@@ -9,17 +9,17 @@ export * from "../base/types.js";
 export * from "./http.js";
 
 export class ZeroTierClient extends ZeroTierClientBase<ZeroTierAPI> {
-  constructor(opts?: ZeroTierAPIOptions);
+  constructor(opts?: Partial<ZeroTierAPIOptions>);
   constructor(api?: ZeroTierAPI);
-  constructor(optsOrAPI?: ZeroTierAPIOptions | ZeroTierAPI) {
+  constructor(optsOrAPI?: Partial<ZeroTierAPIOptions> | ZeroTierAPI) {
     super(optsOrAPI instanceof ZeroTierAPI ? optsOrAPI : new ZeroTierAPI({ ...optsOrAPI, httpClient: new BrowserHTTPClient() }));
   }
 }
 
 export class ZeroTierController extends ZeroTierControllerBase<ZeroTierAPI> {
-  constructor(opts?: ZeroTierAPIOptions);
+  constructor(opts?: Partial<ZeroTierAPIOptions>);
   constructor(api?: ZeroTierAPI);
-  constructor(optsOrAPI?: ZeroTierAPIOptions | ZeroTierAPI) {
+  constructor(optsOrAPI?: Partial<ZeroTierAPIOptions> | ZeroTierAPI) {
     super(optsOrAPI instanceof ZeroTierAPI ? optsOrAPI : new ZeroTierAPI({ ...optsOrAPI, httpClient: new BrowserHTTPClient() }));
   }
 }

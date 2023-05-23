@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import fetch from 'node-fetch';
-import { ZeroTierClient as BrowserZeroTierClient } from '../browser/index.js';
+import { BrowserHTTPClient, ZeroTierClient as BrowserZeroTierClient } from '../browser/index.js';
 import { NodeZeroTierAPI as ZeroTierAPI } from '../node/api.js';
 import { ZeroTierClient, ZeroTierController } from '../node/index.js';
 
@@ -175,7 +175,7 @@ describe('ZeroTierClient', () => {
     it('should return an array of peers (browser version)', async () => {
       global.window = {} as any;
       global.fetch = fetch as any;
-      const client = new BrowserZeroTierClient();
+      const client = new BrowserZeroTierClient({ secret: process.env.ZT_SECRET });
       const peers = await client.getPeers();
       expect(peers).to.be.an('array');
     });
@@ -190,7 +190,7 @@ describe('ZeroTierClient', () => {
     it('should return a peer object (browser version)', async () => {
       global.window = {} as any;
       global.fetch = fetch as any;
-      const client = new BrowserZeroTierClient(new ZeroTierAPI());
+      const client = new BrowserZeroTierClient(new ZeroTierAPI({ httpClient: new BrowserHTTPClient() }));
       const peers = await client.getPeers();
       const peer = await client.getPeer(peers[0].address);
       expect(peer).to.be.an('object');

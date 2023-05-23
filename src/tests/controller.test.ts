@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import fetch from "node-fetch";
-import { ZeroTierController as BrowserZeroTierController } from "../browser/index.js";
+import { BrowserHTTPClient, ZeroTierController as BrowserZeroTierController } from "../browser/index.js";
 import { NodeZeroTierAPI as ZeroTierAPI } from "../node/api.js";
 import { ZeroTierClient, ZeroTierController } from "../node/index.js";
 
@@ -68,7 +68,7 @@ describe("ZeroTierController", () => {
   it("should update a network in the controller (browser version 1)", async () => {
     global.window = {} as any;
     global.fetch = fetch as any;
-    const controller = new BrowserZeroTierController();
+    const controller = new BrowserZeroTierController({ secret: process.env.ZT_SECRET });
     const controllerNetwork = await controller.updateNetwork(testNetworkId, { name: "test_network_browser" });
     expect(controllerNetwork).to.be.an("object");
     expect(controllerNetwork.id).to.be.equal(testNetworkId);
@@ -78,7 +78,7 @@ describe("ZeroTierController", () => {
   it("should update a network in the controller (browser version 2)", async () => {
     global.window = {} as any;
     global.fetch = fetch as any;
-    const controller = new BrowserZeroTierController(new ZeroTierAPI());
+    const controller = new BrowserZeroTierController(new ZeroTierAPI({ httpClient: new BrowserHTTPClient() }));
     const controllerNetwork = await controller.updateNetwork(testNetworkId, { name: "test_network_browser" });
     expect(controllerNetwork).to.be.an("object");
     expect(controllerNetwork.id).to.be.equal(testNetworkId);
