@@ -129,7 +129,9 @@ export namespace ZeroTier {
       creationTime: number;
       private: boolean;
       enableBroadcast: boolean;
-      v4AssignMode: 'none' | 'zt' | 'dhcp';
+      v4AssignMode: {
+        zt: boolean;
+      };
       v6AssignMode: {
         rfc4193: boolean;
         '6plane': boolean;
