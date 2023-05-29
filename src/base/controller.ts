@@ -37,12 +37,12 @@ export class ZeroTierController<API extends ZeroTierAPI> {
     return this.api.invoke<ZeroTier.Controller.Member>("post", `/controller/network/${id}/member/${memberId}`, data); 
   }
   
-  public authorizeMember(id: string, memberId: string): Promise<ZeroTier.Controller.Member> {
-    return this.updateMember(id, memberId, { authorized: true });
+  public authorizeMember(id: string, memberId: string, capabilities: number[] = []): Promise<ZeroTier.Controller.Member> {
+    return this.updateMember(id, memberId, { authorized: true, capabilities });
   }
 
-  public deauthorizeMember(id: string, memberId: string): Promise<ZeroTier.Controller.Member> {
-    return this.updateMember(id, memberId, { authorized: false });
+  public deauthorizeMember(id: string, memberId: string, capabilities: number[] = []): Promise<ZeroTier.Controller.Member> {
+    return this.updateMember(id, memberId, { authorized: false, capabilities });
   }
 
   public deleteMember(id: string, memberId: string): Promise<ZeroTier.Controller.Member> {

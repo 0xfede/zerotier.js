@@ -147,17 +147,43 @@ describe('ZeroTierClient', () => {
 
       let member = await controller.getMember(testNetworkId, address);
       expect(member?.authorized).to.be.true;
+      expect(member?.capabilities).to.deep.equal([]);
 
       await controller.deauthorizeMember(testNetworkId, address);
       member = await controller.getMember(testNetworkId, address);
       expect(member?.authorized).to.be.false;
 
-      /*
+      await client.leaveNetwork(testNetworkId);
       await controller.deleteMember(testNetworkId, address);
       const members = await controller.getMembers(testNetworkId);
       expect(members[address]).to.be.undefined;
-      */
     });
+
+    it('should join a network and be authorized with specific capabilities', async () => {
+      debugger;
+
+      // authorize the member
+      const controller = new ZeroTierController();
+      await controller.authorizeMember(testNetworkId, address, [ 1, 2, 3 ]);
+
+      // check that it's not already joined
+      const client = new ZeroTierClient();
+      let networks = await client.getNetworks();
+      let network = networks.find((network) => network.id === testNetworkId);
+      expect(network).to.be.undefined;
+
+      network = await client.joinNetwork(testNetworkId);
+
+      let member = await controller.getMember(testNetworkId, address);
+      expect(member?.authorized).to.be.true;
+      expect(member?.capabilities).to.deep.equal([ 1, 2, 3 ]);
+
+      await controller.deauthorizeMember(testNetworkId, address, [ 1 ]);
+      member = await controller.getMember(testNetworkId, address);
+      expect(member?.authorized).to.be.false;
+      expect(member?.capabilities).to.deep.equal([ 1 ]);
+    });
+
   });
 
   describe('Peer', () => {
